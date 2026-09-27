@@ -31,33 +31,47 @@ chinese-web-fiction-writing/   ← 可通过 specify preset add 安装的预设�
 
 ## 安装
 
-需要 [Spec Kit](https://github.com/github/spec-kit) >= 0.5.0（`uv tool install specify-cli`）。
+### 从零开始 —— 一键初始化
 
-**一键安装（推荐）**：
+前置条件：Python 3.10+ 和 [uv](https://docs.astral.sh/uv/)（可用 `pip install uv` 或 `winget install astral-sh.uv` 安装）。
 
 ```bash
+# 1. 安装 Spec Kit CLI（>= 0.5.0）
+uv tool install specify-cli --from git+https://github.com/github/spec-kit.git
+
+# 2. 初始化一个新小说项目——按提示选择 AI agent（如 Trae）和脚本类型
+specify init my-novel
+cd my-novel
+
+# 3. 一键加装本预设
+specify preset add --from https://github.com/sigentech/speckit-preset-chinese-web-fiction-writing/releases/download/v1.0.0/chinese-web-fiction-writing.zip
+
+# 4. 安装网文技能树到 .trae/skills/（执行一次，让 agent 可自动调用）
+#    Windows (PowerShell):
+.specify/presets/chinese-web-fiction-writing/scripts/powershell/install-webnovel-skill.ps1
+#    macOS / Linux:
+bash .specify/presets/chinese-web-fiction-writing/scripts/bash/install-webnovel-skill.sh
+```
+
+完成——在你的 AI agent 中打开 `my-novel`，从 `/speckit-constitution` 开始（见下方快速开始）。
+
+> 不想常驻安装 CLI？第 1–2 步可用单发方案：`uvx --from git+https://github.com/github/spec-kit.git specify init my-novel`。也可以用 pip：`pip install git+https://github.com/github/spec-kit.git`。
+
+### 已安装 Spec Kit？
+
+```bash
+specify init my-novel
+cd my-novel
 specify preset add --from https://github.com/sigentech/speckit-preset-chinese-web-fiction-writing/releases/download/v1.0.0/chinese-web-fiction-writing.zip
 ```
 
-**本地开发模式**：
+**本地开发模式**（直接在本仓库上开发）：
 
 ```bash
 specify preset add --dev /path/to/speckit-preset-chinese-web-fiction-writing/chinese-web-fiction-writing
 ```
 
-**安装后执行一次**（把网文技能树装入 `.trae/skills/`，让 agent 可自动调用）：
-
-```powershell
-# Windows (PowerShell)
-.specify/presets/chinese-web-fiction-writing/scripts/powershell/install-webnovel-skill.ps1
-```
-
-```bash
-# macOS / Linux
-bash .specify/presets/chinese-web-fiction-writing/scripts/bash/install-webnovel-skill.sh
-```
-
-> 即使不执行此脚本，`/speckit-webnovel-craft` 命令也会自动回退到预设内置的技能树副本。
+> 第 4 步（技能安装脚本）是可选的：即使不执行，`/speckit-webnovel-craft` 命令也会自动回退到预设内置的技能树副本。
 
 ## 快速开始
 

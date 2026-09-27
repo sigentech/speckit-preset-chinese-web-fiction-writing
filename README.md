@@ -31,33 +31,47 @@ chinese-web-fiction-writing/   ← preset directory installable via `specify pre
 
 ## Installation
 
-Requires [Spec Kit](https://github.com/github/spec-kit) >= 0.5.0 (`uv tool install specify-cli`).
+### From Zero — One-Shot Setup
 
-**One-click install (recommended)**:
+Prerequisite: Python 3.10+ and [uv](https://docs.astral.sh/uv/) (install with `pip install uv` or `winget install astral-sh.uv`).
 
 ```bash
+# 1. Install the Spec Kit CLI (>= 0.5.0)
+uv tool install specify-cli --from git+https://github.com/github/spec-kit.git
+
+# 2. Initialize a new novel project — follow the prompts to pick your AI agent (e.g. Trae) and script type
+specify init my-novel
+cd my-novel
+
+# 3. Add this preset (one click)
+specify preset add --from https://github.com/sigentech/speckit-preset-chinese-web-fiction-writing/releases/download/v1.0.0/chinese-web-fiction-writing.zip
+
+# 4. Install the webnovel skill tree into .trae/skills/ (run once, so the agent can auto-invoke it)
+#    Windows (PowerShell):
+.specify/presets/chinese-web-fiction-writing/scripts/powershell/install-webnovel-skill.ps1
+#    macOS / Linux:
+bash .specify/presets/chinese-web-fiction-writing/scripts/bash/install-webnovel-skill.sh
+```
+
+Done — open `my-novel` in your AI agent and start with `/speckit-constitution` (see Quick Start below).
+
+> No persistent CLI needed? One-shot alternative for steps 1–2: `uvx --from git+https://github.com/github/spec-kit.git specify init my-novel`. pip also works: `pip install git+https://github.com/github/spec-kit.git`.
+
+### Spec Kit Already Installed?
+
+```bash
+specify init my-novel
+cd my-novel
 specify preset add --from https://github.com/sigentech/speckit-preset-chinese-web-fiction-writing/releases/download/v1.0.0/chinese-web-fiction-writing.zip
 ```
 
-**Local development mode**:
+**Local development mode** (work on this repo directly):
 
 ```bash
 specify preset add --dev /path/to/speckit-preset-chinese-web-fiction-writing/chinese-web-fiction-writing
 ```
 
-**Run once after installation** (installs the webnovel skill tree into `.trae/skills/` so the agent can auto-invoke it):
-
-```powershell
-# Windows (PowerShell)
-.specify/presets/chinese-web-fiction-writing/scripts/powershell/install-webnovel-skill.ps1
-```
-
-```bash
-# macOS / Linux
-bash .specify/presets/chinese-web-fiction-writing/scripts/bash/install-webnovel-skill.sh
-```
-
-> Even without this step, `/speckit-webnovel-craft` falls back to the skill tree bundled inside the preset.
+> Step 4 (the skill installer) is optional: even without it, `/speckit-webnovel-craft` falls back to the skill tree bundled inside the preset.
 
 ## Quick Start
 
