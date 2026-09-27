@@ -1,0 +1,249 @@
+description: Final line-edit pass  prose rhythm, sentence variety, word repetition, filter words, adverb density, and voice register consistency. Runs after speckit.checklist PASS. Distinct from speckit.revise (structural/checklist failures) and speckit.checklist (craft gates).
+handoffs:
+  - label: Run Checklist
+    agent: speckit.checklist
+    prompt: Run the scene quality checklist before polishing
+    send: true
+  - label: Continue Drafting
+    agent: speckit.implement
+    prompt: Continue drafting the next scene in phase order
+    send: true
+
+## Purpose
+
+The **`/speckit.polish`** command performs the final line‑edit pass on a chapter that has already passed the `speckit.checklist` quality gates. It focuses on surface‑level prose quality—rhythm, word choice, repetition, filter‑word removal, adverb density, and voice‑register consistency—without altering the scene’s structure or meaning.
+
+It is distinct from:
+* `speckit.revise` – which addresses structural or checklist failures.
+* `speckit.checklist` – which validates craft gates before polishing.
+
+## Flags
+
+| Flag | Description |
+|------|-------------|
+| `<chapter‑id>` or `<range>` | Target chapter ID (e.g., `A1.101`) or a range (e.g., `A1.101‑A1.103`). If omitted, the most recently drafted chapter with a **PASS** checklist verdict is used.
+| `--no‑confirm` | Skip the interactive audit confirmation step and apply all automatically‑approved fixes.
+| `--skip <ID>` | Provide a comma‑separated list of issue IDs to skip (e.g., `--skip WR-002,PR-001`).
+| `--dry‑run` | Run the audit and present the report **without** making any file changes.
+
+These flags can be combined as needed.
+
+## Execution Flow
+
+1. **Validate input** – Parse `$ARGUMENTS` and resolve target chapter files.
+2. **Pre‑hook** – Execute any `hooks.before_polish` defined in `.specify/extensions.yml`.
+3. **Checklist gate** – Verify the latest checklist for each target has `Verdict: PASS`; abort with an error if any are `FAIL`.
+4. **Load context** – Read `constitution.md`, `craft-rules.md`, the POV character profile, and optionally `glossary.md` and voice‑sample files.
+5. **Run audit** – Scan the prose for rhythm, word‑level, voice‑register, and dialogue‑internal issues (PR‑001‑004, WR‑001‑005, VR‑001‑006, DI‑001‑003).
+6. **Present report** – Show a table of detected issues with proposed fixes. If `--dry-run` or `--no‑confirm` is set, skip user interaction.
+7. **Apply fixes** – Respect any `--skip` list or user‑provided confirmations; make only the approved edits.
+8. **Update draft** – Increment `version`, recalculate `actual_words`, add a `polished:` timestamp, and write the polished file (optionally versioned).
+9. **Audiobook sync** – If audiobook drafts exist, regenerate them from the polished prose according to the rules in `speckit.implement`.
+10. **Post‑hook** – Execute any `hooks.after_polish`.
+11. **Index update** – Run the project index script if it exists.
+
+The command finishes by reporting the polished file path, issue statistics, and any audiobook sync results.
+
+## Polish Purpose: "Making Prose Invisible"
+
+**CRITICAL CONCEPT**: Polish is the final pass that removes friction between reader and story. It operates at the sentence and paragraph level  not the scene level. A scene that passes `speckit.checklist` is structurally sound; polish makes it feel effortless.
+
+**NOT for structural problems**  use `speckit.revise`:
+- ? NOT "This scene doesn't have a triple purpose"
+- ? NOT "The ending isn't off-balance"
+- ? NOT "This contradicts the story bible"
+
+**FOR prose surface quality**:
+- ? Sentence rhythm variation (short/long alternation, end-weight)
+- ? Word repetition within paragraphs and across adjacent paragraphs
+- ? Filter word removal (`she noticed`, `he felt`, `she saw`, `he heard`)
+- ? Adverb density reduction (max 1 adverb per 200 words of prose)
+- ? Weak verb replacement (`was`, `had`, `got`) with active/precise verbs
+- ? Voice register drift (POV character's vocabulary register slipping)
+- ? Em-dash and ellipsis overuse
+- ? Paragraph opening word variety (no two consecutive paragraphs starting with the same word)
+
+**Metaphor**: If `speckit.checklist` is the unit test suite, polish is the linter and formatter  it catches surface patterns that tests don't see.
+
+## User Input
+
+```text
+$ARGUMENTS
+```
+
+You **MUST** consider the user input before proceeding (if not empty).
+Expected format: a chapter ID (e.g., `A1.101`) or a range (e.g., `A1.101â€“A1.103`). If empty, polish the most recently drafted chapter with a PASS checklist verdict.
+
+## Pre-Execution Checks
+
+**Check for extension hooks (before polishing)**:
+- Check if `.specify/extensions.yml` exists in the project root.
+- If it exists, read it and look for entries under the `hooks.before_polish` key
+- Process as standard hook block (Optional/Mandatory). Skip silently if absent.
+
+**Update search index** (large projects):
+- Check whether `scripts/python/index.py` exists (check `.specify/presets/fiction-book-writing/scripts/python/index.py` first, then `scripts/python/index.py` as fallback) and `.specify/index/` exists (index has been built).
+- If both exist, run: `python .specify/presets/fiction-book-writing/scripts/python/index.py update` from the project root before polishing begins.
+- This ensures semantic search reflects the latest draft files and supporting documents.
+
+## Operating Constraints
+
+**VOICE AUTHORITY**: `.specify/memory/constitution.md` is the final arbiter of what is correct prose. Polish must not "improve" a sentence into a voice that doesn't belong to the POV character. A low-register character must remain low-register even after polishing.
+
+**CHECKLIST GATE**: Do not polish a chapter whose most recent checklist verdict is FAIL. Emit an error and direct the user to run `speckit.revise` first.
+
+**SCOPE**: Only the chapter prose is touched. YAML frontmatter (other than `version`, `actual_words`, and adding `polished:` field) is not altered.
+
+**PROHIBITION**: Do not change the meaning or structural function of any sentence. If a fix requires changing what a sentence communicates, stop and flag it  do not silently rewrite.
+
+## Execution Steps
+
+1. **Setup**: Resolve `FEATURE_DIR` by reading the project structure: the first subdirectory inside `specs/` that contains project files. Fall back to project root if `specs/` does not exist.
+   - After polishing is complete, if `.specify/index/` exists, run: `python .specify/presets/fiction-book-writing/scripts/python/index.py update` again to index the polished chapter versions.
+
+2. **Identify the target**:
+   - Parse `$ARGUMENTS` for chapter ID or range. Resolve to `draft/*.md` file(s).
+   - If no argument given: find the most recently modified draft file whose matching checklist has `Verdict: PASS`.
+   - For each target file, verify the most recent checklist in `checklists/` has `Verdict: PASS`. If FAIL: abort that file with: `? <CHAPTER_ID>: checklist is FAIL  run speckit.revise before polishing.`
+
+3. **Load context**:
+   - Read `.specify/memory/constitution.md`: style mode, vocabulary register, story-specific Anti-AI phrases (`Â§VII`), em-dash cap rule, **Language** (`Â§VII Language`), **Tone** (`Â§VII Tone`), **Target Audience** (`Â§VII Target Audience`), **Tense** (`Â§VII Tense`), **Sentence Rhythm** (`Â§VII Sentence Rhythm`). Tone governs emotional temperature and irony during polish  do not neutralise a scene's intended dark humour, bleakness, or warmth while fixing rhythm. Target Audience governs vocabulary ceiling  do not replace simple diction with elevated synonyms when audience is middle-grade or young-adult. Tense governs the required narrative tense; flag any tense drift found during polish as a separate WARNING rather than silently correcting it. Sentence Rhythm provides the story-specific baseline for the rhythm checks (SR-001, SR-002)  apply the author's stated pattern, not a generic alternation rule.
+   - Read `.specify/memory/craft-rules.md`: universal Anti-AI Filter phrases, active prose profile rules, voice register standards
+   - Read `characters/[pov-character-name].md`: vocabulary pool, vocabulary register, verbal tics, speech-under-stress patterns
+
+   **Language-aware scope**: If `Language ? en` (or Language is not set to `en`), the following checks are **English-only and must be SKIPPED**:
+   - WR-001 Filter word list (`she noticed`, `he felt`, etc.)  these patterns are English-specific; do not apply to other languages
+   - WR-004 Adverb density (the `-ly` suffix rule is English-specific morphology)
+   - DI-001 Said-bookism (dialogue attribution norms vary strongly by language)
+   - DI-002 Adverb on attribution (same reason)
+   For `Language ? en`, the following checks are **language-agnostic and always active**: PR-001â€“PR-004 (rhythm), WR-002 (word repetition), WR-003 (weak verbs), WR-005 (throat-clearing), VR-001â€“VR-006, DI-003 (double punctuation).
+   Notify the user at the start of the audit: `?? Language is set to [LANGUAGE]  English-specific checks (WR-001, WR-004, DI-001, DI-002) are disabled.`
+   - Read `glossary.md` if present: Section V (Usage Rules)  capitalization rules, spelling preferences, terms that must not appear, and terms with restricted meaning. These supplement the Anti-AI Filter for this specific chapter's context.
+   - Read author voice sample (if `STYLE_MODE: author-sample`): use it as the rhythm reference for sentence length calibration
+
+4. **Run the polish audit**  scan the chapter prose for each issue category and record every instance:
+
+   **PR  Prose Rhythm**
+   - PR-001: Sentence length monotony  4+ consecutive sentences within Â±20% of the same word count
+   - PR-002: End-weight violation  sentence ends on a weak/unstressed syllable cluster in a high-tension passage
+   - PR-003: Paragraph opening repetition  two or more consecutive paragraphs opening with the same word or construction
+   - PR-004: Paragraph length monotony  4+ consecutive paragraphs of the same approximate length
+
+   **WR  Word-Level Issues**
+   - WR-001: Filter word  `she noticed`, `he saw`, `she heard`, `he felt`, `she realized`, `he thought`, `she wondered`, `he knew`, `she looked`, `he watched` (and variants)
+   - WR-002: Same content word repeated within 100 words (excluding POV character name, pronouns, conjunctions)
+   - WR-003: Weak verb  `was [adjective]`, `had [noun]`, `got [adjective/past participle]` in a position where a precise verb is available
+   - WR-004: Adverb count exceeds 1 per 200 words in any 400-word window
+   - WR-005: Throat-clearing opener  sentence or paragraph opening that delays the real content (`It was at this point that...`, `She found herself thinking about...`)
+
+   **VR  Voice Register**
+   - VR-001: Vocabulary above the POV character's register (word not in their vocabulary pool and not in narration distance)
+   - VR-002: Vocabulary below register in a passage requiring precision or authority
+   - VR-003: Verbal tic absent from a scene where the POV character is under stress (tic should be present per `characters/[name].md`)
+   - VR-004: Em-dash count exceeds constitution.md limit per page-equivalent (every 250 words)
+   - VR-005: Ellipsis used to pad or suggest vagueness rather than trailing thought or interrupted speech
+   - VR-006: Glossary violation  a term from `glossary.md` is misspelled, incorrectly capitalised, used in a rejected variant form, or used with a meaning that contradicts its story-specific definition (only checked if `glossary.md` is present)
+
+   **DI  Dialogue Internals** (dialogue-line level only; scene-level dialogue is `speckit.checklist` territory)
+   - DI-001: Said-bookism  dialogue attribution using a verb other than `said`/`asked` and their tense forms, where the action is not physically distinct
+   - DI-002: Adverb on attribution (`said quietly`, `asked nervously`)  remove or show via action beat instead
+   - DI-003: Double punctuation with attribution (`"Oh." she said.` ? `"Oh," she said.`)
+
+5. **Present the Polish Audit Report** before making any edits:
+
+   ```
+   ## Polish Audit: <CHAPTER_ID>
+
+   | Issue ID | Category | Location | Issue | Proposed fix |
+   |---|---|---|---|---|
+   | PR-001 | Rhythm | Para 3, sentences 2â€“6 | 5 sentences averaging 12 words | Vary: split sentence 4; merge 5+6 |
+   | WR-001 | Filter word | Para 7, line 2 | "She noticed the door was ajar" | "The door stood ajar." |
+   | WR-002 | Repetition | Paras 11â€“12 | "dark" Ã— 3 in 80 words | Replace 2nd instance; remove 3rd |
+   | VR-001 | Register | Para 9, line 4 | "ameliorate"  above Theresa's register | Replace with "fix" or "ease" |
+
+   Total issues: N (PR: N | WR: N | VR: N | DI: N)
+   Estimated change surface: N sentences / N words affected
+   ```
+
+   **Stop and wait for user confirmation** before applying any edits. Allow the user to:
+   - Approve all fixes
+   - Skip specific items (`skip WR-002 in para 11  repetition is intentional`)
+   - Provide a direction note for an item
+   - Approve by category (`apply all WR fixes, skip PR fixes`)
+
+6. **Apply approved fixes** in top-to-bottom order:
+   - Make only the changes in the confirmed scope
+   - Do not cascade edits beyond the fix (if shortening a sentence changes a nearby rhythm issue that wasn't in scope, leave it  flag it for the next pass)
+   - After each fix, verify: the sentence still communicates the same thing; the voice register is still correct; no new repetition has been introduced in the immediate vicinity
+
+7. **Assemble the polished draft**:
+   - Write the full chapter with all approved fixes applied
+   - Update YAML frontmatter:
+     - Increment `version` (e.g., `version: 2` ? `version: 3`)
+     - Update `actual_words` with new word count
+     - Add `polished: [YYYY-MM-DD]` field (insert after `revised:` if present, else after `drafted:`)
+   - Save as `draft/<CHAPTER_ID>_<ChapterName>_v<N>.md`
+   - Keep all prior versions unchanged
+
+7b. **Sync audiobook drafts** (skip if `OUTPUT_MODE` is `book` in `constitution.md ## X`):
+
+   Check for matching audiobook draft files in `FEATURE_DIR/audiodraft/`:
+   - SSML: `audiodraft/<CHAPTER_ID>_<ChapterName>.ssml`
+   - ElevenLabs: `audiodraft/<CHAPTER_ID>_<ChapterName>_el.xml`
+
+   If neither file exists: note `?? No audiobook draft found for <CHAPTER_ID>  run speckit.implement to generate one.` in the report. Do not block.
+
+   If audiobook draft(s) exist: regenerate from the polished prose draft using `speckit.implement step 5b` transformation rules:
+   - Re-apply all polish fixes at the audio text level:
+     - WR-001 filter word removal ? the direct prose replacement is used verbatim; no `<voice>` or break changes needed
+     - PR-001 / PR-004 rhythm fixes ? sentence splits may change `<break>` placement; update break timing to match new sentence boundaries
+     - WR-002 word repetition fixes ? update the inline text; re-check that affected words are still in the Pronunciation Lexicon if they were wrapped in `<phoneme>` tags
+     - VR-004 em-dash reduction ? fewer `<break time="250ms"/>` tags; verify count matches revised prose
+     - DI-001 / DI-002 said-bookism / adverb-on-attribution fixes ? update attribution text in the segment; these are within `<voice>` or narrator segments, not boundary changes
+   - **Do not change segment boundaries or voice assignments** unless the polish fix changed a narration-to-dialogue or dialogue-to-narration boundary (rare; flag if it happens)
+   - Increment `version` in the audiobook YAML frontmatter to match the polished prose version
+   - Add `polished: [YYYY-MM-DD]` to the audiobook YAML frontmatter
+   - Append a `<!-- AUDIOBOOK POLISH NOTES` block immediately after the YAML header:
+     ```xml
+     <!-- AUDIOBOOK POLISH NOTES v<N>
+          Synced from:  draft/<CHAPTER_ID>_<ChapterName>_v<N>.md
+          Polished:     [YYYY-MM-DD]
+          Audio changes: N (break adjustments: N | phoneme updates: N | text fixes: N)
+          Segment boundary changes: none | [describe if any]
+     -->
+     ```
+   - Overwrite the existing audiobook file in place
+
+8. **Append polish notes** to the top of the polished file (after YAML frontmatter, before prose):
+   ```
+   <!-- POLISH NOTES v<N>
+        Polished: [YYYY-MM-DD]
+        Issues fixed: N (PR: N | WR: N | VR: N | DI: N)
+        Issues skipped: [list with reason]
+        Net word delta: [+N / -N words]
+   -->
+   ```
+
+9. **Report**:
+   - Path to polished file
+   - Issues fixed vs. skipped
+   - Net word delta
+   - Any items flagged during fixing that require meaning-change review (user must decide)
+   - Audiobook draft sync result (regenerated / not found / skipped)
+   - If no issues were found: `? <CHAPTER_ID>: prose is clean  no polish changes needed.`
+
+10. **Check for extension hooks** (after polishing): check `hooks.after_polish` in `.specify/extensions.yml`. Process as standard hook block. Skip silently if absent.
+
+11. **Update search index** (optional  large projects):
+    - If `.specify/index/` exists, run: `python .specify/presets/fiction-book-writing/scripts/python/index.py update` from the project root.
+    - Polished draft files are re-indexed incrementally so continuity and research checks query the final prose.
+    - If the command fails or the index does not exist, skip silently.
+
+---
+
+## 中文网文项目扩展（speckit-webnovel-craft）
+
+当项目为中文长篇网文（平台连载向）时，行改阶段叠加 `speckit-webnovel-craft` 技能树的可读性检查：
+- `subskills/webnovel-chapter`：长短句穿插（铺垫用长句、高潮换短句；删「的、了、着」）、画面感（具体化模糊词、远景→中景→特写、每场景至少两种感官）、对话必须带目的（交锋/试探/信息差）
+- 注意：本命令的 English-only 检查项（WR-001/WR-004/DI-001/DI-002）在 `Language: zh` 时按规则跳过，中文可读性改稿以 webnovel-chapter 清单为准
+- 入口：`.trae/skills/speckit-webnovel-craft/SKILL.md`（路由层）；完整方法论：`ref/网文爆款写作实操手册.md` 第九章
