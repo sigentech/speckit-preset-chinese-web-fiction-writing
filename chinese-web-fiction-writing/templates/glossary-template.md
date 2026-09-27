@@ -1,10 +1,15 @@
-﻿# Glossary: [STORY_TITLE]
+# Glossary: [STORY_TITLE]
 
 <!-- Feature: [FEATURE_DIR] | Generated: [GENERATION_DATE] -->
 <!-- Consistency reference for all invented terms, proper nouns, and story-specific
      usage rules. speckit.polish checks VR-001 (vocabulary register) against this file.
      speckit.continuity checks world-building consistency against this file.
-     Add every term the first time it appears in a draft. -->
+     Add every term the first time it appears in a draft.
+     GLOBAL RULE (craft-rules.md § VII): every specialized term — names, places,
+     concepts, skills, items, factions, traits — MUST be registered here.
+     When the prose language (constitution `Language`) is NOT English, every entry
+     MUST also record its canonical English equivalent — this file is the single
+     source of truth for a consistent English edition of the manuscript. -->
 
 ---
 
@@ -12,6 +17,7 @@
 
 - **Before drafting**: scan the relevant sections for terms that appear in the scene
 - **While drafting**: if you invent a new term or use a proper noun, add it here immediately
+- **Non-English projects**: fill the English equivalent field/column for EVERY entry, and keep the chosen English form stable once set
 - **speckit.polish**: uses the Spelling & Capitalization column to flag inconsistencies
 - **speckit.continuity**: uses the Definition and Constraints columns to flag contradictions
 
@@ -19,11 +25,13 @@
 
 ## Term Index
 
-<!-- Quick lookup table. Full entries are in the sections below. -->
+<!-- Quick lookup table. Full entries are in the sections below.
+     English equivalent column: REQUIRED when prose language is not English;
+     leave blank for English-language projects. -->
 
-| Term | Type | Section | First appearance |
-|---|---|---|---|
-| [Term] | [invented / proper noun / title / place / faction] | [I / II / III / IV / V] | [Beat ID] |
+| Term | English equivalent | Type | Section | First appearance |
+|---|---|---|---|---|
+| [Term] | [canonical EN form, or "—" for EN projects] | [invented / proper noun / title / place / faction] | [I / II / III / IV / V] | [Beat ID] |
 
 ---
 
@@ -37,6 +45,7 @@
 | Field | Value |
 |---|---|
 | Spelling | [exact spelling — case-sensitive where relevant] |
+| English equivalent | [canonical English translation — REQUIRED when prose language is not English; e.g., 筑基 → Foundation Establishment] |
 | Plural | [plural form, or "uncountable"] |
 | Part of speech | [noun / verb / adjective / proper noun] |
 | In-world definition | [what it means to characters who use it — their understanding, not the author's] |
@@ -59,9 +68,9 @@
 <!-- All named characters, titles of address, and honorifics.
      Spelling and capitalization are enforced across all drafts. -->
 
-| Name / Title | Spelling | Variant forms | Used by | Notes |
-|---|---|---|---|---|
-| [Full name] | [exact] | [nickname, title, how antagonists refer to them] | [who uses which form] | [e.g., "family uses first name only; outsiders use title"] |
+| Name / Title | English equivalent | Spelling | Variant forms | Used by | Notes |
+|---|---|---|---|---|---|
+| [Full name] | [canonical EN form, e.g., 叶凡 → Ye Fan — required for non-EN projects] | [exact] | [nickname, title, how antagonists refer to them] | [who uses which form] | [e.g., "family uses first name only; outsiders use title"] |
 
 ---
 
@@ -70,9 +79,9 @@
 <!-- All named locations, regions, buildings, and geographic features.
      Cross-reference with locations.md for sensory anchors. -->
 
-| Name | Spelling | Abbreviation / informal form | Type | Notes |
-|---|---|---|---|---|
-| [Place name] | [exact] | [e.g., "The Hold"] | [city / region / building / landmark] | [e.g., "never 'the [Name]' — no article"] |
+| Name | English equivalent | Spelling | Abbreviation / informal form | Type | Notes |
+|---|---|---|---|---|---|
+| [Place name] | [canonical EN form — required for non-EN projects] | [exact] | [e.g., "The Hold"] | [city / region / building / landmark] | [e.g., "never 'the [Name]' — no article"] |
 
 ---
 
@@ -81,9 +90,9 @@
 <!-- Named groups, organizations, artifacts, ships, weapons, or any named object
      that recurs across scenes. -->
 
-| Name | Spelling | Type | Members / contents | Notes |
-|---|---|---|---|---|
-| [Name] | [exact] | [faction / institution / artifact / vehicle] | | [e.g., "always capitalized, never abbreviated"] |
+| Name | English equivalent | Spelling | Type | Members / contents | Notes |
+|---|---|---|---|---|---|
+| [Name] | [canonical EN form — required for non-EN projects] | [exact] | [faction / institution / artifact / vehicle] | | [e.g., "always capitalized, never abbreviated"] |
 
 ---
 

@@ -173,6 +173,22 @@ Prefer showing **consequence before cause** to create dramatic irony. Use time j
 
 ---
 
+## VII. Terminology & Glossary (Global Rule)
+
+### Glossary-First Rule
+Every specialized term that appears in the story MUST be registered in `glossary.md` the moment it is coined — including but not limited to: character names, place names, concepts, skills/abilities, items, factions, and traits. Registration path: `speckit.glossary add`. `speckit.polish` and `speckit.continuity` enforce against the glossary.
+
+### Bilingual Entries for Non-English Projects
+When the prose language (constitution `Language`) is NOT `en`, every glossary entry MUST record BOTH:
+- the **original-language form** exactly as used in the draft, and
+- the **English equivalent** — one canonical translation per term, kept stable once chosen.
+
+### Why This Rule Exists
+1. **In-text consistency** — one canonical form per term across the whole manuscript; no spelling or translation drift.
+2. **Translation-ready** — the bilingual glossary is the single source of truth for producing an accurate, terminologically consistent English edition of a non-English manuscript.
+
+---
+
 ## Universal Anti-AI Filter ⚠️
 The following phrases are PROHIBITED in all prose profiles — they mark prose as AI-generated:
 

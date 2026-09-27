@@ -54,6 +54,10 @@ Accepted arguments:
 - `speckit.continuity` checks world-building against this file and appends to `## Consistency Log`.
 - `speckit.glossary check` is a focused, author-initiated version of those passive checks — run it before polishing a chapter to resolve violations proactively.
 
+**Global terminology rule** (craft-rules.md § VII):
+- Every specialized term — names, places, concepts, skills, items, factions, traits — MUST be registered the moment it is coined.
+- When the project's constitution `Language` is NOT `en`, every entry MUST include a canonical **English equivalent** (original-language form + English form). This bilingual record keeps in-text terminology consistent and serves as the single source of truth for generating an accurate, consistent English edition of the manuscript. `check` mode flags missing English equivalents as VG-006.
+
 ---
 
 ## Pre-Execution Checks
@@ -104,6 +108,10 @@ Enter 1–5:
 ```
 
 ### Add Step 2 — Gather entry fields
+
+**For ALL types** — read `Language` from `constitution.md` first. If it is NOT `en`, additionally gather:
+
+- **English equivalent** — the canonical English form of the term (e.g., pinyin for Chinese names: 叶凡 → Ye Fan; translated skill names: 筑基 → Foundation Establishment). Prompt: `English equivalent (canonical — required for non-English projects):`. One term, one English form: once chosen, it MUST NOT change. Record it in the entry's `English equivalent` field/column and in the `## Term Index` row.
 
 #### For type `invented` (Section I):
 
@@ -221,6 +229,9 @@ This is a judgment call — flag as WARNING only if the usage is clearly the sta
 **VG-005 — Invented term used before first appearance**
 For any invented term in Section I with a `First introduced` beat ID: check whether any chapter with an earlier chapter ID uses the term.
 
+**VG-006 — Missing English equivalent (non-English projects only)**
+If constitution `Language` is NOT `en`: scan Sections I–IV and `## Term Index` for any entry whose English equivalent is blank or `[NEEDS CLARIFICATION]`. Each missing equivalent is a violation — the bilingual record is required for translation consistency. Skip this check entirely for English-language projects.
+
 For each violation found:
 
 ```
@@ -255,6 +266,7 @@ VG-002 — Rejected variant             : [N]
 VG-003 — Banned term                  : [N]
 VG-004 — Restricted meaning drift     : [N] (WARNINGS)
 VG-005 — Used before introduction     : [N]
+VG-006 — Missing English equivalent   : [N] (non-EN projects only)
 
 [Detail block per violation]
 

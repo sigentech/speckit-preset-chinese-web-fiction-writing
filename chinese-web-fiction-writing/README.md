@@ -133,7 +133,7 @@ Commands are grouped by lifecycle phase. Phases run roughly in order; commands m
 | `/speckit-revise` | Surgically rewrites only the failing passages flagged by checklist/continuity; produces a versioned draft with a diff summary. | When checklist or continuity reports failures. |
 | `/speckit-continuity` | Post-draft prose analysis: story-bible compliance, character-arc consistency, timeline coherence, open-thread coverage. | After implement — per chapter or as a full pass. |
 | `/speckit-pacing` | Scores per-chapter tension; detects plateaus, sagging middles, premature peaks; outputs a Mermaid tension chart + remediation tasks. | After implement, before polish/export. |
-| `/speckit-glossary` | Terminology authority: add terms, check violations, audit unregistered inventions, status dashboard. | Continuously; enforced by polish and continuity. |
+| `/speckit-glossary` | Terminology authority: add terms (with canonical English equivalents for non-English projects), check violations, audit unregistered inventions, status dashboard. | Continuously; enforced by polish and continuity. |
 | `/speckit-sensitivity` | Representation review with severity tiers (CRITICAL / WARNING / NOTE) and per-issue remediation guidance. | Before publication; scope to a chapter, a category, or the full manuscript. |
 | `/speckit-statistics` | Prose metrics: readability score, sentence-length variance, passive-voice %, adverb density, dialogue balance. | After implement or polish, for a quantitative snapshot. |
 | `/speckit-polish` | Final line edit: rhythm, sentence variety, word repetition, filter words, adverb density, voice register. | After checklist PASS — the last prose gate. |
@@ -161,6 +161,16 @@ Commands are grouped by lifecycle phase. Phases run roughly in order; commands m
 | Command | What it does | When to use it |
 |---|---|---|
 | `/speckit-webnovel-craft` | Routes to the 7-subskill webnovel tree: packaging (title/blurb), golden three-chapter opening, 爽点 pacing, three-layer outline + progression system, character system, chapter craft, rookie-pitfall diagnosis. | Any phase of a Chinese serialized webnovel: pre-launch packaging, opening review, serialization pacing, readership-drop diagnosis. Not for non-webnovel genres. |
+
+---
+
+## Global Rule: Glossary & Bilingual Records
+
+Applies to every project (defined in craft-rules § VII; enforced by `/speckit-glossary`, `/speckit-polish`, `/speckit-continuity`):
+
+1. **Every term is registered** — any specialized term appearing in the story (including but not limited to character names, place names, concepts, skills, items, factions, traits) MUST be added to `glossary.md` the moment it is coined.
+2. **Non-English projects are bilingual** — when the prose language is not English (constitution `Language ≠ en`), every entry MUST record BOTH the original-language expression and its canonical English equivalent (one term, one translation — stable once chosen).
+3. **Why** — first, terminology consistency across the whole manuscript; second, the bilingual glossary is the single source of truth for generating an accurate, consistent English edition of a non-English manuscript.
 
 ---
 
@@ -239,6 +249,11 @@ flowchart TD
 - Built on [adaumann/speckit-preset-fiction-book-writing](https://github.com/adaumann/speckit-preset-fiction-book-writing) **v1.9.1** (MIT); all of its commands, templates, and export capabilities are preserved. Full upstream command reference: [upstream README](https://github.com/adaumann/speckit-preset-fiction-book-writing/blob/main/fiction-book-writing/README.md).
 - Added by this preset: `commands/speckit.webnovel-craft.md`, the `skills/speckit-webnovel-craft/` skill tree, Chinese-webnovel extension sections in 5 core commands, and 2 skill installer scripts.
 - Division of labor: **speckit runs the engineering pipeline** (specify → plan → tasks → implement → continuity → polish); **webnovel-craft runs the commercial webnovel playbooks** (packaging, opening, 爽点, outline, characters, chapter, pitfalls).
+
+## Credits
+
+- [github/spec-kit](https://github.com/github/spec-kit) (MIT)
+- [adaumann/speckit-preset-fiction-book-writing](https://github.com/adaumann/speckit-preset-fiction-book-writing) v1.9.1 (MIT)
 
 ## License
 
