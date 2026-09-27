@@ -44,7 +44,7 @@ specify init my-novel
 cd my-novel
 
 # 3. 一键加装本预设
-specify preset add --from https://github.com/sigentech/speckit-preset-chinese-web-fiction-writing/releases/download/v1.0.0/chinese-web-fiction-writing.zip
+specify preset add --from https://github.com/sigentech/speckit-preset-chinese-web-fiction-writing/releases/latest/download/chinese-web-fiction-writing.zip
 
 # 4. 安装网文技能树到 .trae/skills/（执行一次，让 agent 可自动调用）
 #    Windows (PowerShell):
@@ -62,7 +62,7 @@ bash .specify/presets/chinese-web-fiction-writing/scripts/bash/install-webnovel-
 ```bash
 specify init my-novel
 cd my-novel
-specify preset add --from https://github.com/sigentech/speckit-preset-chinese-web-fiction-writing/releases/download/v1.0.0/chinese-web-fiction-writing.zip
+specify preset add --from https://github.com/sigentech/speckit-preset-chinese-web-fiction-writing/releases/latest/download/chinese-web-fiction-writing.zip
 ```
 
 **本地开发模式**（直接在本仓库上开发）：

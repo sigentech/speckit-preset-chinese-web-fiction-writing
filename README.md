@@ -44,7 +44,7 @@ specify init my-novel
 cd my-novel
 
 # 3. Add this preset (one click)
-specify preset add --from https://github.com/sigentech/speckit-preset-chinese-web-fiction-writing/releases/download/v1.0.0/chinese-web-fiction-writing.zip
+specify preset add --from https://github.com/sigentech/speckit-preset-chinese-web-fiction-writing/releases/latest/download/chinese-web-fiction-writing.zip
 
 # 4. Install the webnovel skill tree into .trae/skills/ (run once, so the agent can auto-invoke it)
 #    Windows (PowerShell):
@@ -62,7 +62,7 @@ Done — open `my-novel` in your AI agent and start with `/speckit-constitution`
 ```bash
 specify init my-novel
 cd my-novel
-specify preset add --from https://github.com/sigentech/speckit-preset-chinese-web-fiction-writing/releases/download/v1.0.0/chinese-web-fiction-writing.zip
+specify preset add --from https://github.com/sigentech/speckit-preset-chinese-web-fiction-writing/releases/latest/download/chinese-web-fiction-writing.zip
 ```
 
 **Local development mode** (work on this repo directly):
